@@ -11,3 +11,9 @@ ctrl + home/end 移动到文件头/尾
 ctrl + alt + l 格式化文档
 
 ctrl + alt + ‘+/-’ 展开折叠当前代码
+
+
+
+激活码
+
+http://idea.imsxm.com
