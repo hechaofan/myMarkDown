@@ -1560,3 +1560,40 @@ export default {
 </script>
 ```
 
+# Vue中显示img图片，显示不出来
+
+https://blog.csdn.net/weixin_43264399/java/article/details/87366413
+
+1、如何是一个普通组件的话，那么这样就可以了
+<img :src="./static/images/logo.png"
+
+上面这种是写死的，下面让我们试试进行动态显示；
+
+```
+export default{
+	   data(){
+            return {
+             logo:require("./static/images/logo.png"),
+            }
+        },
+```
+
+有时候我们的组件可能是一个子组件或者子子组件那么我们这样写
+
+```
+<script>
+    import imgUrl from '@/static/images/logo.png'
+    export default {
+        name:'UserFace',
+        data(){
+            return {
+              //imgUrl:require("@/static/images/logo.png");
+              imgUrl,
+            }
+        }
+    }
+</script>
+```
+
+有时候src下面的路径…/是访问不到的，那么可以试试使用@代替…/
+

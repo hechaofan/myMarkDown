@@ -752,3 +752,10 @@ Object.assign(obj1,obj2)
 console.log(obj1) //{ name: 'zhaoming', age: '18', sex: 'fame' }
 ```
 
+
+
+
+
+# Promise详解（resolve,reject,catch）、
+
+ https://blog.csdn.net/qq_37939251/article/details/93650542 
