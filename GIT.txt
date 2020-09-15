@@ -6,7 +6,7 @@
     git commit -m "提交文件"
 ## 2. 创建远程仓库
 ## 3. 推送到远程
-    git remote add origin https://github.com/hechaofan/webMarkDown.git
+    git remote add origin http://47.101.41.176:9091/unionpay/vue.git
     git push origin master
 ## 4. 修改代码
     git add .
