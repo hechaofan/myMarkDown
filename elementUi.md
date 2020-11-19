@@ -1,5 +1,40 @@
 # table
 
+## 表单数据请求
+
+```js
+async TaolinGoodsCouponListVueApi(){
+//模糊搜索有值，页面从第一页开始搜
+        if(this.goodsName_like){
+          this.page = 1
+        }
+        this.loading = true
+        let params = {
+          page: this.page,
+          start: this.start,
+          limit: this.limit,
+          _goodsName_like: this.goodsName_like,
+        }
+        try{
+          let res = await TaolinGoodsCouponListVue(params)
+          if(res.status == 1001){
+            this.tableData = res.data.data
+            if(this.tableData.length == 0){
+              this.page = 1
+            }
+            this.result = res.data.result
+            this.loading = false
+          }else{
+            this.loading = false
+          }
+        }catch (error){
+          this.loading = false
+        }
+      },
+```
+
+
+
 ## table模板
 
 ```
@@ -147,6 +182,41 @@ this.$nextTick(function () {
 
 
 
+
+
+## 过滤
+
+```
+<el-table-column prop="faultType" align="center"  label="故障类型">
+          <template slot-scope="scope">
+            {{scope.row.faultType | faultTypeFilter}}
+          </template>
+        </el-table-column>
+        
+        
+        var app0 
+        filters:{
+      faultTypeFilter(v){
+        let arr = app0.relationTypeList
+        if(arr.length > 0){
+          let index = arr.findIndex(item => {
+            return item.optionValue == v
+          })
+          if(index >= 0){
+            return arr[index].optionName
+          }else{
+            return ''
+          }
+        }else {
+          return ''
+        }
+    },
+    
+    beforeCreate: function () {
+      app0 = this;
+    },
+```
+
 # el-tag
 
 ```
@@ -277,11 +347,41 @@ systemSettings(系统设置)/roleManage角色管理   merchantManage商家管理
 
 
 <el-drawer
-        title="商家管理"
-        :visible.sync="drawerShow"
+        title="上传收货证明"
+        :visible.sync="receiptShow"
         direction="rtl"
-        @close="drawerShowClose">
+        size="70%"
+        @close="receiptShowClose">
+      <div style="overflow-y: auto" :style="{height:drawerHeight}">
+        <div style="height: 2000px;background-color: #3a8ee6"></div>
+      </div>
+      <div style="display: flex;justify-content: flex-end;padding-right: 20px;margin-top: 10px">
+        <el-button @click="receiptShow = false">取 消</el-button>
+        <el-button type="primary">提 交 审 核</el-button>
+      </div>
     </el-drawer>
+    created(){
+      window.addEventListener('resize', this.getHeight);
+      this.getHeight()
+    },
+    getHeight(){
+        this.drawerHeight = window.innerHeight-110+'px';
+      },
+      destroyed(){
+      window.removeEventListener('resize', this.getHeight)
+    },
+    
+    
+    //没有动态高度
+    <el-drawer
+          :visible.sync="merchandise.visible"
+          direction="rtl"
+          :wrapperClosable="false"
+          title="商品管理"
+          style="height: 600px; position: fixed; top: calc(100% - 600px)"
+          size="70%"
+        >
+        </el-drawer>
 ```
 
 
@@ -467,6 +567,18 @@ async loadNode(node, resolve) {
            }
         }
       },
+```
+
+
+
+
+
+## vue中element-ui 树形控件-树节点的选择(选中当前节点,获取当前id并且获取其父级id)
+
+https://blog.csdn.net/weixin_42677017/article/details/83043224
+
+```
+getCheckedKeys() { console.log(this.$refs.tree.getCheckedKeys()); },
 ```
 
 
@@ -679,3 +791,87 @@ destroyed(){
 ```
 
 [addEventListener()与removeEventListener(),追加事件和删除追加事件](https://www.cnblogs.com/Sarah119/p/7825265.html)
+
+
+
+
+
+# el-upload上传
+
+operationManage （运营管理）/  维修申请与审核 repairApplyCheck  /   经销商维修申请列表 dealerRepairApplyList
+
+```
+<el-upload
+              class="avatar-uploader"
+              :action="uploadSrc"
+              :headers="headersObj"
+              :limit="5"
+              :file-list="imageUrlList"
+              list-type="picture-card"
+              :on-success="handleImgSuccess"
+              :on-remove="handleRemoveImg"
+              :before-upload="beforeUploadImg">
+            <i class="el-icon-plus"></i>
+          </el-upload>
+          
+          
+          
+let uploadSrc = process.env.VUE_APP_APIURL + 'TaolinMaintainSubmitAudlit/uploadFiles'
+
+uploadSrc: uploadSrc,
+headersObj: {token: sessionStorage.getItem('token')},
+```
+
+
+
+
+
+# 四级联动
+
+```
+<el-cascader
+            v-model="chooseIdList"
+            :options="fourDataOptions"
+            style="width: 500px"
+            class="ml-15"
+            filterable
+            clearable
+            @visible-change="getAllFourDataChange"
+            :props="{ checkStrictly: true }"
+            @change="handleChange"
+        ></el-cascader>
+        
+        getAllFourDataChange(data){
+        if(data){
+          if(this.fourDataOptions.length == 0){
+            this.getAllFourData()
+          }
+        }
+      },
+      getAllFourData(){
+        getAllRegionLineSitesVue().then((res) => {
+          if (res.status == 1001) {
+            this.fourDataOptions = res.data;
+          }
+        });
+      },
+```
+
+
+
+# el-input防抖
+
+```
+<el-input v-model="drawerData.marketingName"
+                      @input="debounceInput"
+                      style="width: 180px" :disabled="!dataEdit"></el-input>
+                      
+                      //input防抖
+      debounceInput(value){
+        if(this.timeout !== null) clearTimeout(this.timeout)
+        this.timeout = setTimeout(() => {
+          this.TaolinMarketingCheckNameApi(value)
+        }, 1000)
+      },
+```
+

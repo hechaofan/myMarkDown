@@ -870,6 +870,70 @@ export default {
 
 # filter过滤器的使用
 
+## filters中使用data中数据
+
+https://www.cnblogs.com/sgqwjr/p/10609569.html
+
+```
+vue filters中 this指向的不是vue实例，但想要获取vue实例中data中的数据，可以采用下面方法。在 beforeCreate中将vue实例赋值给全局变量app0，然后filters中即可通过app0获取data中数据
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- Vue.js v2.6.10 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
+<body>
+<div id="app">
+    <ul>
+        <li v-for="item in list">{{item.title | model}}</li>
+    </ul>
+</div>
+<script>
+    var app0;
+    var app = new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                name: '',
+                shop: '',
+                list: [
+                    {
+                        title: '${name}的购物列表一,所在商城${shop}'
+                    },
+                    {
+                        title: '${name}在${shop}的购物列表二'
+                    }
+                ]
+            }
+        },
+        beforeCreate: function () {
+            app0 = this;
+        },
+        methods: {},
+        mounted: function () {
+            this.$nextTick(function() {
+                setTimeout(() => {
+                    this.name = '张三';
+                    this.shop = '家乐福';
+                }, 1000)
+            })
+        },
+        filters: {
+            model: function (val) {
+                return val.replace(/\$\{name\}/g, app0.name).replace(/\$\{shop\}/g, app0.shop);
+            }
+        }
+    })
+</script>
+</body>
+</html>
+```
+
+
+
 ## filter使用
 
 `Vue.js` 允许你自定义过滤器，可被用于一些常见的文本格式化。过滤器可以用在两个地方：`双花括号插值`和 `v-bind 表达式` (后者从` 2.1.0+` 开始支持)。过滤器应该被添加在 `JavaScript` 表达式的尾部，由“管道”符号指示：
@@ -1597,3 +1661,14 @@ export default{
 
 有时候src下面的路径…/是访问不到的，那么可以试试使用@代替…/
 
+
+
+# vue监控路由
+
+```
+watch:{ 
+$route(newroute,oldroute){   
+    window.sessionStorage.setItem('activePath', newroute.path)    					     	 this.$store.commit('home/activePathChange',newroute.path)
+	}
+},
+```
