@@ -198,3 +198,204 @@ onRenderTriggered((event) => {
 
 
 ## watch的使用和注意事项
+
+vue3使用setup
+
+
+
+watch一个数据
+
+```
+如果只有一个数据，用ref导入
+import { watch} from "vue"
+const overText = ref("红浪漫");
+  const overAction = () => {
+    overText.value = overText.value + "点餐完成 | ";
+  };
+  return { ...refData,  overText,   overAction};
+ watch(overText, (newValue, oldValue) => {
+    document.title = newValue;
+  });
+```
+
+watch多个值时，用reactive
+
+```
+const data = reactive({
+      selectGirl: "",
+    });
+
+
+watch([overText, () => data.selectGirl], (newValue, oldValue) => {
+      console.log(`new--->${newValue}`);
+      console.log(`old--->${oldValue}`);
+      document.title = newValue[0];  //返回的newValue也是一个数组
+  });
+```
+
+
+
+## vue3模块化
+
+在src下创建`hooks/useNowTime.ts`文件
+
+```
+import { ref } from "vue";
+
+const nowTime = ref("00:00:00");
+const getNowTime = () => {
+  const now = new Date();
+  const hour = now.getHours() < 10 ? "0" + now.getHours() : now.getHours();
+  const min = now.getMinutes() < 10 ? "0" + now.getMinutes() : now.getMinutes();
+  const sec = now.getSeconds() < 10 ? "0" + now.getSeconds() : now.getSeconds();
+  nowTime.value = hour + ":" + min + ":" + sec;
+  setTimeout(getNowTime, 1000);
+};
+
+export { nowTime, getNowTime };
+```
+
+在app.vue里引用
+
+```
+
+<div><button @click="getNowTime">显示时间</button></div>
+<div>{{ nowTime }}</div>
+
+
+import { nowTime, getNowTime } from "./hooks/useNowTime";
+setup() {
+    return {
+      nowTime,
+      getNowTime
+    };
+  },
+```
+
+
+
+
+
+
+
+##  Teleport瞬间移动组件 
+
+`Teleport`方法，可以把`Dialog`组件渲染到你任意想渲染的外部Dom上，不必嵌套再`#app`里了，这样就不会互相干扰了。你可以把`Teleport`看成一个传送门，把你的组件传送到你需要的地方。 `teleport`组件和其它组件没有任何其它的差异，用起来都是一样的。
+
+使用的第一步是把你编写的组件用``标签进行包裹，在组件上有一个`to`属性，这个就是要写你需要渲染的`DOM`ID了。
+
+```js
+<template>
+  <teleport to="#modal">
+    <div id="center">
+      <h2>JSPang11</h2>
+    </div>
+  </teleport>
+</template>
+```
+
+
+
+组件写好后，在App.vue中使用就非常简单了，先引入这个，然后声明为`component`就可以了。
+
+```js
+//...
+import modal from "./components/Modal.vue";
+const app = {
+  name: "App",
+  components: {
+    modal,
+  },
+  //...
+}
+```
+
+
+
+
+
+然后我们在打开`/public/index.html`,增加一个`model`节点。
+
+```js
+<div id="app"></div>
+<div id="modal"></div>
+```
+
+在需要使用的地方引入，这时候在浏览器中预览，就会发现，现在组件已经挂载到`model`节点上了，这就是`teleport`组件的使用了。
+
+
+
+## Suspense异步请求组件
+
+在`/src/components/`目录下，新建一个`GirlShow.vue`的新组件。
+
+```js
+<template>
+    <img :src="result && result.imgUrl"  />
+</template>
+<script lang="ts">
+import axios from 'axios'
+import { defineComponent } from 'vue'
+export default defineComponent({
+    async setup() {  //promise 语法糖  返回之后也是promise对象
+        const rawData = await  axios.get('https://apiblog.jspang.com/default/getGirl')
+        return {result:rawData.data}
+    }
+})
+</script>
+```
+
+ `App.vue`页面 
+
+```
+<template>
+  <div>
+    <Suspense>
+      <template #default>
+         <girl-show />
+      </template>
+      <template #fallback>
+        <h1>Loading...</h1>
+      </template>
+    </Suspense>
+  </div>
+</template>
+
+import GirlShow from "./components/GirlShow.vue";
+
+const app = {
+  name: "App",
+  components: { GirlShow },
+  setup() {
+    return {};
+  },
+};
+```
+
+
+
+## 处理异步请求错误
+
+在`vue3.x`的版本中，可以使用`onErrorCaptured`这个钩子函数来捕获异常。在使用这个钩子函数前，需要先进行引入.
+
+```js
+import { ref , onErrorCaptured} from "vue";
+```
+
+有了`onErrorCaptured`就可以直接在`setup()`函数中直接使用了。钩子函数要求我们返回一个布尔值，代表错误是否向上传递，我们这里返回了`true`。
+
+```js
+const app = {
+  name: "App",
+  components: { AsyncShow, GirlShow },
+  setup() {
+    onErrorCaptured((error) => {
+      console.log(`error====>`,error)
+      return true  
+    })
+    return {};
+  },
+};
+```
+
+写好后，我们故意把请求地址写错，然后打开浏览器的终端，看一下控制台已经捕获到错误了。在实际工作中，你可以根据你的真实需求，处理这些错误。
