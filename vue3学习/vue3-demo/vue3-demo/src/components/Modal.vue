@@ -1,12 +1,22 @@
 <template>
   <teleport to="#modal">
-    <div id="center">
+    <div id="center" v-if="isOpen">
       <h2>JSPang11</h2>
+      <button @click="$emit('click-close','haha')">close</button>
     </div>
   </teleport>
 </template>
 <script lang="ts">
-export default {};
+import {defineComponent} from 'vue'
+export default defineComponent({
+  props:{
+    isOpen:Boolean
+  },
+  emits:{
+    'click-close': null
+  },
+
+})
 </script>
 <style>
 #center {

@@ -2,6 +2,104 @@
 
 
 
+## 为什么会有vue3
+
+vue2的痛点：
+
+### vue2复杂组件难以维护
+
+![](./img/2020-12-26_140624.png)
+
+![](./img/2020-12-26_140904.png)
+
+![](./img/2020-12-26_141033.png)
+
+vue2 mixin的缺点
+
+1. 命名冲突
+2. 不清楚暴露出来变量的作用
+3. 重用到其他component经常遇到问题
+
+
+
+### vue2很难集成typeScript
+
+
+
+### vue2使用defineProperty,vue3使用proxy，响应式更高明
+
+defineProperty只可以监听已经添加（数据初始化）的属性，导致vue2，有一些对象新添加属性和数组新添加数据不是响应式，要使用set方法
+
+proxy可以监听所有属性，之后添加的也可以添加
+
+```
+Object.defineProperty(data,'count',{
+      get(){},
+      set(){},
+    })
+new Proxy(data,{
+      get(key){},
+      set(key,value){},
+    })
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 创建vue3的vue-cli
+
+[Vue cli](https://cli.vuejs.org/zh/)
+
+```javascript
+// 安装或者升级
+npm install -g @vue/cli
+# OR
+yarn global add @vue/cli
+
+// 保证 vue cli 版本在 4.5.0 以上
+vue --version
+
+// 创建项目
+vue create my-project
+```
+
+然后的步骤
+
+- Please pick a preset - 选择 **Manually select features**
+- Check the features needed for your project - 多选择上 **TypeScript**，特别注意点空格是选择，点回车是下一步
+- Choose a version of Vue.js that you want to start the project with - 选择 **3.x (Preview)**
+- Use class-style component syntax - 输入 **n**，回车
+- Use Babel alongside TypeScript - 输入**n**，回车
+- Pick a linter / formatter config - 直接回车
+- Pick additional lint features - 直接回车
+- Where do you prefer placing config for Babel, ESLint, etc.? - 直接回车
+- Save this as a preset for future projects? - 输入**n**，回车
+
+启动图形化界面创建
+
+```text
+vue ui
+```
+
+
+
+
+
+
+
 
 
 ## setup() 和ref()函数
@@ -44,6 +142,66 @@ export default defineComponent({
   },
 });
 </script>
+```
+
+setup的props，contest参数
+
+![image-20201228150811181](./img/image-20201228150811181.png)
+
+![image-20201228151118005](./img/image-20201228151118005.png)
+
+
+
+## computed和ref
+
+```
+<template>
+  <h1>{{count}}</h1>
+  <h1>{{double}}</h1>
+  <button @click="increase">+1</button>
+</template>
+
+import { ref } from "vue"
+
+setup() {
+  // ref 是一个函数，它接受一个参数，返回的就是一个神奇的 响应式对象 。我们初始化的这个 0 作为参数包裹到这个对象中去，在未来可以检测到改变并作出对应的相应。
+  const count = ref(0)
+  const double = computed(() => {
+    return count.value * 2
+  })
+  const increase = () => {
+    count.value++
+  }
+  return {
+    count,
+    increase,
+    double
+  }
+}
+```
+
+## computed和reactive
+
+```
+<template>
+  <h1>{{count}}</h1>
+  <h1>{{double}}</h1>
+</template>
+
+import { ref } from "vue"
+
+setup() {
+  const data  = reactive({
+      count: 0,
+      double: computed(() => {
+    return count.value * 2
+  }),
+    })
+    const refData = toRefs(data)
+  return {
+    ...refData
+  }
+}
 ```
 
 
@@ -116,6 +274,20 @@ Vue3 的生命周期比较多，我们需要一个个给大家讲。
 - onErrorCaptured(): 当捕获一个来自子孙组件的异常时激活钩子函数（以后用到再讲，不好展现）。
 
 注：使用``组件会将数据保留在内存中，比如我们不想每次看到一个页面都重新加载数据，就可以使用``组件解决。
+
+```
+setup() {
+  onMounted(() => {
+    console.log('mounted')
+  })
+  onUpdated(() => {
+    console.log('updated')
+  })
+  onRenderTriggered((event) => {
+    console.log(event)
+  })
+}
+```
 
 
 
@@ -235,7 +407,87 @@ watch([overText, () => data.selectGirl], (newValue, oldValue) => {
 
 
 
+## emits事件发送
+
+使用$emit
+
+
+
+
+
+
+
+
+
+**瞬移组件示例**
+
+Modal 组件
+
+```vue
+<template>
+<teleport to="#modal">
+  <div id="center" v-if="isOpen">
+    <h2><slot>this is a modal</slot></h2>
+    <button @click="buttonClick">Close</button>
+  </div>
+</teleport>
+</template>
+<script lang="ts">
+import { defineComponent } from 'vue'
+export default defineComponent({
+  props: {
+    isOpen: Boolean,
+  },
+  emits: {
+    'close-modal': null
+  },
+  setup(props, context) {
+    const buttonClick = () => {
+      context.emit('close-modal')
+    }
+    return {
+      buttonClick
+    }
+  }
+})
+</script>
+<style>
+  #center {
+    width: 200px;
+    height: 200px;
+    border: 2px solid black;
+    background: white;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    margin-left: -100px;
+    margin-top: -100px;
+  }
+</style>
+```
+
+在 App 组件中使用
+
+```javascript
+const modalIsOpen = ref(false)
+const openModal = () => {
+  modalIsOpen.value = true
+}
+const onModalClose = () => {
+  modalIsOpen.value = false
+}
+
+<button @click="openModal">Open Modal</button><br/>
+<modal :isOpen="modalIsOpen" @close-modal="onModalClose"> My Modal !!!!</modal>
+```
+
+
+
+
+
 ## vue3模块化
+
+### 自定义hooks，使用use开头
 
 在src下创建`hooks/useNowTime.ts`文件
 
@@ -273,6 +525,99 @@ setup() {
 ```
 
 
+
+### 模块化开发鼠标追踪器
+
+```javascript
+// 在单组件内添加对应逻辑
+const x = ref(0)
+const y = ref(0)
+const updateMouse = (e: MouseEvent) => {
+  x.value = e.pageX
+  y.value = e.pageY
+}
+onMounted(() => {
+  document.addEventListener('click', updateMouse)
+})
+onUnmounted(() => {
+  document.removeEventListener('click', updateMouse)
+})
+
+// 将组件内逻辑抽象成可复用的函数
+function useMouseTracker() {
+  // const positions = reactive<MousePostion>({
+  //   x: 0,
+  //   y: 0
+  // })
+  const x = ref(0)
+  const y = ref(0)
+  const updatePosition = (event: MouseEvent) => {
+    x.value = event.clientX
+    y.value = event.clientY 
+  }
+  onMounted(() => {
+    document.addEventListener('click', updatePosition)
+  })
+  onUnmounted(() => {
+    document.removeEventListener('click', updatePosition)
+  })
+  return { x, y }
+}
+
+export default useMouseTracker
+```
+
+**vue3 这种实现方式的优点**
+
+- 第一：它可以清楚的知道 xy 这两个值的来源，这两个参数是干什么的，他们来自 useMouseTracker 的返回，那么它们就是用来追踪鼠标位置的值。
+- 第二：我们可以xy 可以设置任何别名，这样就避免了命名冲突的风险。
+- 第三：这段逻辑可以脱离组件存在，因为它本来就和组件的实现没有任何关系，我们不需要添加任何组件实现相应的功能。只有逻辑代码在里面，不需要模版。
+
+
+
+### 模块化结合typescript - 泛型改造
+
+```ts
+// 为函数添加泛型
+function useURLLoader<T>(url: string) {
+  const result = ref<T | null>(null)
+// 在应用中的使用，可以定义不同的数据类型
+interface DogResult {
+  message: string;
+  status: string;
+}
+interface CatResult {
+  id: string;
+  url: string;
+  width: number;
+  height: number;
+}
+
+// 免费猫图片的 API  https://api.thecatapi.com/v1/images/search?limit=1
+const { result, loading, loaded } = useURLLoader<CatResult[]>('https://api.thecatapi.com/v1/images/search?limit=1')
+
+```
+
+
+
+## vue3对typeScript的加持
+
+defineComponent:为了使传入的对象获取对应的类型，完全为了服务typeScript存在
+
+在vsCode编辑器中使用defineComponent就会有vue3语法糖提示
+
+```
+<script lang="ts">
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+  name: 'HelloWorld',
+  props: {
+    msg: String,
+  },
+});
+</script>
+```
 
 
 
@@ -327,54 +672,81 @@ const app = {
 
 ## Suspense异步请求组件
 
-在`/src/components/`目录下，新建一个`GirlShow.vue`的新组件。
+### Suspense - 异步请求好帮手第一部分
 
-```js
+定义一个异步组件，在 setup 返回一个 Promise，AsyncShow.vue
+
+```vue
 <template>
-    <img :src="result && result.imgUrl"  />
+  <h1>{{result}}</h1>
 </template>
 <script lang="ts">
-import axios from 'axios'
 import { defineComponent } from 'vue'
 export default defineComponent({
-    async setup() {  //promise 语法糖  返回之后也是promise对象
-        const rawData = await  axios.get('https://apiblog.jspang.com/default/getGirl')
-        return {result:rawData.data}
-    }
+  setup() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        return resolve({
+          result: 42
+        })
+      }, 3000)
+    })
+  }
 })
 </script>
 ```
 
- `App.vue`页面 
+在 App 中使用
 
+```html
+<Suspense>
+  <template #default>
+    <async-show />
+  </template>
+  <template #fallback>
+    <h1>Loading !...</h1>
+  </template>
+</Suspense>
 ```
+
+### Suspense - 异步请求好帮手第二部分
+
+使用 async await 改造一下异步请求, 新建一个 DogShow.vue 组件
+
+```vue
 <template>
-  <div>
-    <Suspense>
-      <template #default>
-         <girl-show />
-      </template>
-      <template #fallback>
-        <h1>Loading...</h1>
-      </template>
-    </Suspense>
-  </div>
+  <img :src="result && result.message">
 </template>
 
-import GirlShow from "./components/GirlShow.vue";
-
-const app = {
-  name: "App",
-  components: { GirlShow },
-  setup() {
-    return {};
-  },
-};
+<script lang="ts">
+import axios from 'axios'
+import { defineComponent } from 'vue'
+export default defineComponent({
+  async setup() {//promise语法糖 返回的也是promise对象
+    const rawData = await axios.get('https://dog.ceo/api/breeds/image')
+    return {
+      result: rawData.data
+    }
+  }
+})
+</script>
 ```
 
+Suspense 中可以添加多个异步组件
 
+```html
+<Suspense>
+  <template #default>
+    <async-show />
+    <dog-show />
+  </template>
+  <template #fallback>
+    <h1>Loading !...</h1>
+  </template>
+</Suspense>
+```
 
-## 处理异步请求错误
+## onErrorCaptured处理异步请求错误
 
 在`vue3.x`的版本中，可以使用`onErrorCaptured`这个钩子函数来捕获异常。在使用这个钩子函数前，需要先进行引入.
 
@@ -389,7 +761,7 @@ const app = {
   name: "App",
   components: { AsyncShow, GirlShow },
   setup() {
-    onErrorCaptured((error) => {
+    onErrorCaptured((error: any) => {
       console.log(`error====>`,error)
       return true  
     })
@@ -399,3 +771,75 @@ const app = {
 ```
 
 写好后，我们故意把请求地址写错，然后打开浏览器的终端，看一下控制台已经捕获到错误了。在实际工作中，你可以根据你的真实需求，处理这些错误。
+
+
+
+## 全局api修改
+
+ [Global API Change](https://v3.vuejs.org/guide/migration/global-api.html#global-api) 
+
+Vue2 的全局配置
+
+```javascript
+import Vue from 'vue'
+import App from './App.vue'
+
+Vue.config.ignoredElements = [/^app-/]
+Vue.use(/* ... */)
+Vue.mixin(/* ... */)
+Vue.component(/* ... */)
+Vue.directive(/* ... */)
+
+Vue.prototype.customProperty = () => {}
+
+new Vue({
+  render: h => h(App)
+}).$mount('#app')
+```
+
+Vue2 这样写在一定程度上修改了 Vue 对象的全局状态。
+
+- 第一，在单元测试中，全局配置非常容易污染全局环境，用户需要在每次 case 之间，保存和恢复配置。有一些 api （vue use vue mixin）甚至没有方法恢复配置，这就让一些插件的测试非常的困难。
+- 第二，在不同的 APP 中，如果想共享一份有不同配置的 vue 对象，也变得非常困难。
+
+**Vue3 的修改**
+
+```typescript
+import { createApp } from 'vue'
+import App from './App.vue'
+
+const app = createApp(App)
+// 这个时候 app 就是一个 App 的实例，现在再设置任何的配置是在不同的 app 实例上面的，不会像vue2 一样发生任何的冲突。
+
+app.config.isCustomElement = tag => tag.startsWith('app-')
+app.use(/* ... */)
+app.mixin(/* ... */)
+app.component(/* ... */)
+app.directive(/* ... */)
+
+app.config.globalProperties.customProperty = () => {}
+
+// 当配置结束以后，我们再把 App 使用 mount 方法挂载到固定的 DOM 的节点上。
+app.mount(App, '#app')
+```
+
+
+
+![image-20201228164958822](./img/image-20201228164958822.png)
+
+具名导出，完美支持webpack treeShaking打包
+
+
+
+
+
+## composition Api 组合式api
+
+
+
+
+
+# 问题
+
+## 怎么在setup中拿到emits的值
+
