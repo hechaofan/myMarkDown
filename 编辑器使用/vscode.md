@@ -2,49 +2,6 @@
 
 # vscode
 
-# [VSCode中tab自动补全html代码设置](https://www.cnblogs.com/liuafan/p/11540120.html)
-
-进入vscode里面 => 文件 => 首选项 => 设置=> 工作台=> 外观 => 在settings.json中编辑 进入编辑状态
-
-```
-// 添加这个之后保存即可
-{
-    "emmet.triggerExpansionOnTab":true
-}
-```
-
-# VSCode代码自动换行设置
-
-File>>Preferences>>settings>>UserSettings>>CommonlyUsed>>找到Editor:WordWrap,将off修改为on即可
-
-# VSCode快捷键
-
-Alt + up/down 移动行上下 
-
-Shift + Alt up/down 在当前行上下复制当前行
-
-Ctrl + Enter 在当前行下插入新的一行
-
-Ctrl + Shift + Enter 在当前行上插入新的一行
-
-Ctrl + ] 或 [ 行缩进 
-
-Ctrl + k+0 折叠所有代码
-
-Ctrl + k+j 展开所有代码
-
-Ctrl + k+l 展开或者展开当前区域代码
-
-Home 光标跳转到行头
-
-End 光标跳转到行尾
-
-Ctrl + Home 跳转到页头
-
-Ctrl + End 跳转到页尾
-
-Ctrl + b  展开折叠目录
-
 
 
 # settings.json
@@ -87,6 +44,7 @@ Ctrl + b  展开折叠目录
     "editor.formatOnPaste": false,
     "emmet.triggerExpansionOnTab": true,
     "editor.wordWrap": "on", //tab自动补全html代码
+    "editor.foldingStrategy": "indentation",//折叠策略基于缩进
 }
 ```
 
@@ -102,29 +60,51 @@ key:  0853648f87b91da63da7d02c9700030ca49dd1ee
 id ：  2737e388e7303e054dfee9939e5afb8e
 ```
 
+ ctrl+shift+p 输入sync 高级选项 打开设置 里面有gist id 和token
+
+ ALT+SHIFT+D 下载配置 
+
+
+
+最好看一下输出台，ctrl+shift+p 输入sync 高级选项 上传更新
+
+ ALT+SHIFT+U 上传配置 
+
 
 
 
 
 # 快捷键
 
-## 查找替换
+##  VSCode 常用快捷键
 
-1. 查找 `Ctrl+F`
-2. 查找替换 `Ctrl+H`
-3. 整个文件夹中查找 `Ctrl+Shift+F`
+```html
+上下移动一行：Alt + Up / Alt + Down
+向下复制行：Shift + Alt + Down
+在当前行下方插入一行:   Ctrl+Enter
+在当前行上方插入一行:   Ctrl+Shift+Enter
 
-## 格式化
+转到行首/行尾：Home / End
+转到文件头/文件尾：Ctrl + Home / Ctrl + End
 
- Shift + Alt + F  
+html代码格式化：Shift＋Alt + F
 
-## 下面插入一行
+查找:   Ctrl+F
+查找替换:   Ctrl+H
+整个文件夹中查找 Ctrl+Shift+F 匹配符
 
-ctrl + enter
+F1 或 Ctrl+Shift+P（俗称万能键）  ：打开命令面板。
 
-## 下面插入一行
+代码行缩进 Ctrl+[ 、 Ctrl+]
+代码折叠展开 Ctrl+Shift+[ 、 Ctrl+Shift+]
+折叠所有区域代码的快捷： ctrl + k      ctrl + 0（数字0） ;
+展开所有折叠区域代码的快捷：ctrl +k      ctrl + J ;
+ctrl+K  ctrl+[  折叠本级
+ctrl+K  ctrl+]  取消折叠本级
 
-ctrl + Shift +enter
+```
+
+- 可以修改快捷键：菜单 文件 --> 首选项 --> 键盘快捷方式
 
 
 
@@ -137,3 +117,31 @@ ctrl + alt + D
 ## TODO
 
 // TODO list
+
+
+
+## Markdown Preview
+
+Ctrl+Shift+v
+
+快捷键：
+
+https://shd101wyy.github.io/markdown-preview-enhanced/#/zh-cn/usages?id=%e5%bf%ab%e6%8d%b7%e9%94%ae
+
+
+
+##  **Turbo Console Log** 
+
+```
+ctrl + alt + l 选中变量之后，使用这个快捷键生成 console.log
+alt + shift + c 注释所有 console.log
+alt + shift + u 启用所有 console.log
+alt + shift + d 删除所有 console.log
+```
+
+
+
+# 推荐的插件
+
+[30个极大提高开发效率的VSCode插件](https://zhuanlan.zhihu.com/p/40417719)
+
