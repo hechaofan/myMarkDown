@@ -42,9 +42,16 @@
     "editor.wordWrapColumn": 400,
     // 格式化粘贴到文件内的内容
     "editor.formatOnPaste": false,
-    "emmet.triggerExpansionOnTab": true,
+    "emmet.triggerExpansionOnTab": true,//在vue等其他中tab自动生成标签
     "editor.wordWrap": "on", //tab自动补全html代码
     "editor.foldingStrategy": "indentation",//折叠策略基于缩进
+    "files.associations": {//把这些文件识别为其他文件
+        "*.cjson": "jsonc",
+        "*.wxss": "css",
+        "*.wxs": "javascript",
+        "*.vue":"html",
+        "*.wxml":"html",
+    },
 }
 ```
 
